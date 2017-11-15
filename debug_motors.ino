@@ -9,8 +9,6 @@ Servo MOTOR_FOUR;
 Servo MOTOR_FIVE;
 Servo MOTOR_SIX;
 
-
-
 int PIN_MOTOR_ONE = 2;
 int PIN_MOTOR_TWO = 11;
 int PIN_MOTOR_THREE = 10;
@@ -84,60 +82,31 @@ void setup() {
 
 }
 
-int motorOneSpeed = 1000;
-int motorTwoSpeed = 1000;
-int motorThreeSpeed = 1000;
-int motorFourSpeed = 1000;
-int motorFiveSpeed = 1000;
-int motorSixSpeed = 1000;
-
-int MOTOR_INCREMENT = 25;
-
-float minmaxSpeed(float val) {
-  return min(max(val, 1000), 2000);
-}
-
-int TEST_SPEED = 1100;
-
 void loop() {
   while (Serial.available()) {
 
     String str = Serial.readStringUntil('T');
 
-    int motorSpeed = str.substring(1, str.length()).toInt();
+    int motorOneSpeed = str.substring(0, str.indexOf('A')).toInt();
+    int motorTwoSpeed = str.substring(str.indexOf('A') + 1, str.indexOf('B')).toInt();
+    int motorThreeSpeed = str.substring(str.indexOf('B') + 1, str.indexOf('C')).toInt();
+    int motorFourSpeed = str.substring(str.indexOf('C') + 1, str.indexOf('D')).toInt();
+    int motorFiveSpeed = str.substring(str.indexOf('D') + 1, str.indexOf('E')).toInt();
+    int motorSixSpeed = str.substring(str.indexOf('E') + 1, str.indexOf('F')).toInt();
 
-    String motor = str.substring(0, 1);
+    Serial.println("Motor A: " + String(motorOneSpeed));
+    Serial.println("Motor B: " + String(motorTwoSpeed));
+    Serial.println("Motor C: " + String(motorThreeSpeed));
+    Serial.println("Motor D: " + String(motorFourSpeed));
+    Serial.println("Motor E: " + String(motorFiveSpeed));
+    Serial.println("Motor F: " + String(motorSixSpeed));
 
-    //Serial.println("Motor: " + motor + " speed: " + String(motorSpeed));
-
-    if (motor.equals("A")) {
-      setSpeed(motorSpeed, MOTOR_ONE);
-      Serial.println("Motor A: " + String(motorSpeed));
-    } else if (motor.equals("B")) {
-      setSpeed(motorSpeed, MOTOR_TWO);
-      Serial.println("Motor B: " + String(motorSpeed));
-    } else if (motor.equals("C")) {
-      setSpeed(motorSpeed, MOTOR_THREE);
-      Serial.println("Motor C: " + String(motorSpeed));
-    } else if (motor.equals("D")) {
-      setSpeed(motorSpeed, MOTOR_FOUR);
-      Serial.println("Motor D: " + String(motorSpeed));
-    } else if (motor.equals("E")) {
-      setSpeed(motorSpeed, MOTOR_FIVE);
-      Serial.println("Motor E: " + String(motorSpeed));
-    } else if (motor.equals("F")) {
-      setSpeed(motorSpeed, MOTOR_SIX);
-      Serial.println("Motor F: " + String(motorSpeed));
-    } else if (motor.equals("Q")) {
-      setSpeed(motorSpeed, MOTOR_ONE);
-      setSpeed(motorSpeed, MOTOR_TWO);
-      setSpeed(motorSpeed, MOTOR_THREE);
-      setSpeed(motorSpeed, MOTOR_FOUR);
-      setSpeed(motorSpeed, MOTOR_FIVE);
-      setSpeed(motorSpeed, MOTOR_SIX);
-
-      Serial.println("All motors: " + String(motorSpeed));
-    }
+    setSpeed(motorOneSpeed, MOTOR_ONE);
+    setSpeed(motorTwoSpeed, MOTOR_TWO);
+    setSpeed(motorThreeSpeed, MOTOR_THREE);
+    setSpeed(motorFourSpeed, MOTOR_FOUR);
+    setSpeed(motorFiveSpeed, MOTOR_FIVE);
+    setSpeed(motorSixSpeed, MOTOR_SIX);
 
   }
 }
