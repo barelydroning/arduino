@@ -94,13 +94,6 @@ void loop() {
     int motorFiveSpeed = str.substring(str.indexOf('D') + 1, str.indexOf('E')).toInt();
     int motorSixSpeed = str.substring(str.indexOf('E') + 1, str.indexOf('F')).toInt();
 
-    Serial.println("Motor A: " + String(motorOneSpeed));
-    Serial.println("Motor B: " + String(motorTwoSpeed));
-    Serial.println("Motor C: " + String(motorThreeSpeed));
-    Serial.println("Motor D: " + String(motorFourSpeed));
-    Serial.println("Motor E: " + String(motorFiveSpeed));
-    Serial.println("Motor F: " + String(motorSixSpeed));
-
     setSpeed(motorOneSpeed, MOTOR_ONE);
     setSpeed(motorTwoSpeed, MOTOR_TWO);
     setSpeed(motorThreeSpeed, MOTOR_THREE);
