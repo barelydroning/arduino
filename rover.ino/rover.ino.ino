@@ -35,14 +35,18 @@
 
 struct STATE {
   int A;
+  bool updateA;
   int B;
+  bool updateB;
   String message;
   int json_depth;
 };
 
 STATE state = {
   0,
+  true,
   0,
+  false,
   "", 
   0,
 };
@@ -101,6 +105,7 @@ void update_state() {
             float rotational_speed = received[key];
             rotational_speed *= MAX_SPEED;
             state.A = (int)rotational_speed;
+            state.updateA = true;
             Serial.println("Setting A speed");
             Serial.println(state.A);
           }
@@ -111,8 +116,9 @@ void update_state() {
             rotational_speed *= MAX_SPEED;
             
             state.B = (int)rotational_speed;
+            state.updateB = true;
             Serial.println("Setting B speed");
-            Serial.println(abs(state.B));
+            Serial.println(state.B);
           }
         }
         state.message = "";
@@ -122,22 +128,27 @@ void update_state() {
 }
 
 void keep_moving(){
-  if (state.A < 0) {
-    digitalWrite(in1, LOW);
-    digitalWrite(in2, HIGH);
-  } else {
-    digitalWrite(in1, HIGH);
-    digitalWrite(in2, LOW);
-  }
-
-  if (state.B < 0) {
-    digitalWrite(in3, LOW);
-    digitalWrite(in4, HIGH);
-  } else {
-    digitalWrite(in3, HIGH);
-    digitalWrite(in4, LOW);
+  if (state.updateA) {
+    state.updateA = false;
+    if (state.A < 0) {
+      digitalWrite(in1, LOW);
+      digitalWrite(in2, HIGH);
+    } else {
+      digitalWrite(in1, HIGH);
+      digitalWrite(in2, LOW);
+    }
+    analogWrite(enA, abs(state.A)); // Send PWM signal to motor A
   }
   
-  analogWrite(enA, abs(state.A)); // Send PWM signal to motor A
-  analogWrite(enB, abs(state.B)); // Send PWM signal to motor A
+  if (state.updateB) {
+    state.updateB = false;
+    if (state.B < 0) {
+      digitalWrite(in3, LOW);
+      digitalWrite(in4, HIGH);
+    } else {
+      digitalWrite(in3, HIGH);
+      digitalWrite(in4, LOW);
+    }
+    analogWrite(enB, abs(state.B)); // Send PWM signal to motor A
+  }
 }
