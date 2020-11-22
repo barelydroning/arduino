@@ -57,15 +57,15 @@ void setup() {
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
 
-  StaticJsonDocument<60. doc;
+  StaticJsonDocument<60> doc;
   doc["message"] = "Arduino ready"
   serializeJsonPretty(doc, Serial)
 }
 
 void loop() {
   update_state();
+  keep_moving();
 }
-
 
 void update_state() {
   if (Serial.available() > 0) {
