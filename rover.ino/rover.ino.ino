@@ -102,14 +102,17 @@ void update_state() {
             rotational_speed *= MAX_SPEED;
             state.A = (int)rotational_speed;
             Serial.println("Setting A speed");
+            Serial.println(state.A);
           }
   
           strcpy(key, "B");
           if (received.containsKey(key)) {
             float rotational_speed = received[key];
             rotational_speed *= MAX_SPEED;
+            
             state.B = (int)rotational_speed;
             Serial.println("Setting B speed");
+            Serial.println(abs(state.B));
           }
         }
         state.message = "";
