@@ -15,9 +15,9 @@
 //
 // Example commands
 //  {} -- maintain current state
-//  {"l": 0.2, "r": -0.2} -- Left speed 0.2 and right speed backwards 0.2
-//  {"r": 0, "l": 0.5} -- Right speed 0 and left speed 0.5
-// //where speed +-1 is max speed. -- perhaps change this
+//  {"A": 0.2, "B": -0.2} -- Left speed 0.2 and right speed backwards 0.2
+//  {"A": 0, "B": 0.5} -- Right speed 0 and left speed 0.5
+// where speed +-1 is max speed. -- perhaps change this
 //
 
 #include <ArduinoJson.h>
@@ -30,24 +30,26 @@
 #define in3 5
 #define in4 6
 
-int motorSpeedR = 0;
-int motorSpeedL = 0;
+#define MAX_SPEED 255
+//#define min_speed 50
 
 struct STATE {
-  int R;
-  int L;
+  int A;
+  int B;
   String message;
   int json_depth;
-}
+};
 
 STATE state = {
-  0, 0,
-  "", 0,
+  0,
+  0,
+  "", 
+  0,
 };
 
 
 void setup() {
-  Serial.begin(1000000);
+  Serial.begin(9600);
   while (!Serial) continue;
 
   pinMode(enA, OUTPUT);
@@ -58,8 +60,8 @@ void setup() {
   pinMode(in4, OUTPUT);
 
   StaticJsonDocument<60> doc;
-  doc["message"] = "Arduino ready"
-  serializeJsonPretty(doc, Serial)
+  doc["message"] = "Arduino ready";
+  serializeJsonPretty(doc, Serial);
 }
 
 void loop() {
@@ -94,24 +96,45 @@ void update_state() {
           Serial.println(state.message.length());
           Serial.println(state.message);
         } else {
-          char key[] = "r";
+          char key[] = "A";
           if (received.containsKey(key)) {
             float rotational_speed = received[key];
-            //rotational_speed *= MAX_STEPPER_SPEED;
-            state.t = (int)rotational_speed;
-            //state.toggle_x = true;
+            rotational_speed *= MAX_SPEED;
+            state.A = (int)rotational_speed;
+            Serial.println("Setting A speed");
           }
   
-          strcpy(key, "l");
+          strcpy(key, "B");
           if (received.containsKey(key)) {
             float rotational_speed = received[key];
-            //rotational_speed *= MAX_STEPPER_SPEED;
-            state.y = (int)rotational_speed;
-            //state.toggle_y = true;
+            rotational_speed *= MAX_SPEED;
+            state.B = (int)rotational_speed;
+            Serial.println("Setting B speed");
           }
         }
         state.message = "";
       }
     }
   }
+}
+
+void keep_moving(){
+  if (state.A < 0) {
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, HIGH);
+  } else {
+    digitalWrite(in1, HIGH);
+    digitalWrite(in2, LOW);
+  }
+
+  if (state.B < 0) {
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, HIGH);
+  } else {
+    digitalWrite(in3, HIGH);
+    digitalWrite(in4, LOW);
+  }
+  
+  analogWrite(enA, abs(state.A)); // Send PWM signal to motor A
+  analogWrite(enB, abs(state.B)); // Send PWM signal to motor A
 }
