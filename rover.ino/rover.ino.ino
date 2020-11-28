@@ -92,7 +92,7 @@ void update_state() {
     }
     state.message += (char)new_byte;
 
-    if (state.json_depth == 0) {
+    if (state.json_depth <= 0) {
       if (state.message.length() > 1) {
         DynamicJsonDocument received(256);
         DeserializationError error = deserializeJson(received, state.message);
