@@ -123,7 +123,6 @@ void update_state() {
             JsonObject update_info = data.createNestedObject();
             update_info["device"] = "A";
             update_info["command"] = state.A; 
-          
           }
   
           strcpy(key, "B");
@@ -140,8 +139,9 @@ void update_state() {
             update_info["command"] = state.B; 
           } 
 
-          if (received.containsKey("prettify_output")){
-            state.prettify_output = (bool)received["prettify_output"];
+          strcpy(key, "prettify_output");
+          if (received.containsKey(key)){
+            state.prettify_output = (bool)received[key];
                   
             JsonObject update_info = data.createNestedObject();
             update_info["device"] = "meta";
