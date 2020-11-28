@@ -117,14 +117,13 @@ void update_state() {
             rotational_speed *= MAX_SPEED;
             int new_speed = (int)rotational_speed;
             
-            if (new_speed != state.A) {
-              state.A = new_speed;
-              state.updateA = true;
-              
-              JsonObject update_info = data.createNestedObject();
-              update_info["device"] = "A";
-              update_info["command"] = state.A; 
-            }
+            state.A = new_speed;
+            state.updateA = true;
+            
+            JsonObject update_info = data.createNestedObject();
+            update_info["device"] = "A";
+            update_info["command"] = state.A; 
+          
           }
   
           strcpy(key, "B");
@@ -133,14 +132,12 @@ void update_state() {
             rotational_speed *= MAX_SPEED;
             int new_speed = (int)rotational_speed;
 
-            if (new_speed != state.B) {
-              state.B = new_speed;
-              state.updateB = true;
-              
-              JsonObject update_info = data.createNestedObject();
-              update_info["device"] = "B";
-              update_info["command"] = state.B; 
-            }
+            state.B = new_speed;
+            state.updateB = true;
+            
+            JsonObject update_info = data.createNestedObject();
+            update_info["device"] = "B";
+            update_info["command"] = state.B; 
           } 
 
           if (received.containsKey("prettify_output")){
