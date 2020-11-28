@@ -115,28 +115,32 @@ void update_state() {
           if (received.containsKey(key)) {
             float rotational_speed = received[key];
             rotational_speed *= MAX_SPEED;
-            state.A = (int)rotational_speed;
-            state.updateA = true;
-
-            JsonObject update_info = data.createNestedObject();
-            update_info["device"] = "A";
-            update_info["command"] = state.A;
+            int new_speed = (int)rotational_speed;
+            
+            if (new_speed != state.A) {
+              state.A = new_speed;
+              state.updateA = true;
+              
+              JsonObject update_info = data.createNestedObject();
+              update_info["device"] = "A";
+              update_info["command"] = state.A; 
+            }
           }
   
           strcpy(key, "B");
           if (received.containsKey(key)) {
             float rotational_speed = received[key];
             rotational_speed *= MAX_SPEED;
-            
-            state.B = (int)rotational_speed;
-            state.updateB = true;
-            
-            JsonObject update_info = data.createNestedObject();
-            update_info["device"] = "B";
-            update_info["command"] = state.B;
+            int new_speed = (int)rotational_speed;
 
-            Serial.print("Update B to ");
-            Serial.println(state.B);
+            if (new_speed != state.B) {
+              state.B = new_speed;
+              state.updateB = true;
+              
+              JsonObject update_info = data.createNestedObject();
+              update_info["device"] = "B";
+              update_info["command"] = state.B; 
+            }
           } 
 
           if (received.containsKey("prettify_output")){
@@ -174,7 +178,8 @@ void update_engine(int motor_pin, int pin1, int pin2, int new_speed) {
   }
   int abs_speed = abs(new_speed);
   abs_speed = abs_speed > MAX_SPEED ? MAX_SPEED : abs_speed;
-  analogWrite(motor_pin, abs_speed); // Send PWM signal to motor A
+  
+  analogWrite(motor_pin, abs_speed);
 }
   
 void keep_moving(){
