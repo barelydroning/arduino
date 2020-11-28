@@ -7,11 +7,11 @@
 // https://arduinojson.org/
 // Installed through the built in library manager
 //
-// Commands as json blobs (I don't think linebreaks are acceptable)
+// Commands as json blobs
 // Each command may contain one or more of
-//  servo: target_angle
 //  L: turn speed (with direction given as sign)
 //  R: turn speed (with direction given as sign)
+//  prettify_output: bool -- toggle pretty json output from arduino (inserts line breaks)
 //
 // Example commands
 //  {} -- maintain current state
@@ -30,6 +30,9 @@
 #define in3 5
 #define in4 6
 
+#define default_prettify_output 0
+#define baud 115200
+
 #define MAX_SPEED 255
 //#define min_speed 50
 
@@ -40,6 +43,7 @@ struct STATE {
   bool updateB;
   String message;
   int json_depth;
+  bool prettify_output;
 };
 
 STATE state = {
@@ -49,11 +53,12 @@ STATE state = {
   false,
   "", 
   0,
+  default_prettify_output,
 };
 
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(baud);
   while (!Serial) continue;
 
   pinMode(enA, OUTPUT);
@@ -65,7 +70,7 @@ void setup() {
 
   StaticJsonDocument<60> doc;
   doc["message"] = "Arduino ready";
-  serializeJsonPretty(doc, Serial);
+  serialize_json(&doc);
 }
 
 void loop() {
@@ -91,23 +96,31 @@ void update_state() {
       if (state.message.length() > 1) {
         DynamicJsonDocument received(256);
         DeserializationError error = deserializeJson(received, state.message);
-  
+        
+        DynamicJsonDocument response(512);
+        
         if (error) {
-          Serial.println("Failed to parse json");
-          Serial.print("  with error: ");
-          Serial.println(error.c_str());
-          Serial.print("  on message len=");
-          Serial.println(state.message.length());
-          Serial.println(state.message);
+          response["type"] = "parse-error";
+          JsonObject data = response.createNestedObject("data");
+          
+          data["error"] = error.c_str();
+          data["input_message"] = state.message;
+          data["input_length"] = state.message.length();
+          
         } else {
+          response["type"] = "state-update";
+          JsonArray data = response.createNestedArray("data");
+          
           char key[] = "A";
           if (received.containsKey(key)) {
             float rotational_speed = received[key];
             rotational_speed *= MAX_SPEED;
             state.A = (int)rotational_speed;
             state.updateA = true;
-            Serial.println("Setting A speed");
-            Serial.println(state.A);
+
+            JsonObject update_info = data.createNestedObject();
+            update_info["device"] = "A";
+            update_info["command"] = state.A;
           }
   
           strcpy(key, "B");
@@ -117,38 +130,61 @@ void update_state() {
             
             state.B = (int)rotational_speed;
             state.updateB = true;
-            Serial.println("Setting B speed");
+            
+            JsonObject update_info = data.createNestedObject();
+            update_info["device"] = "B";
+            update_info["command"] = state.B;
+
+            Serial.print("Update B to ");
             Serial.println(state.B);
+          } 
+
+          if (received.containsKey("prettify_output")){
+            state.prettify_output = (bool)received["prettify_output"];
+                  
+            JsonObject update_info = data.createNestedObject();
+            update_info["device"] = "meta";
+            update_info["command"] = "Toggle prettify_output to " + (int)state.prettify_output;
           }
         }
+        
         state.message = "";
+        serialize_json(&response);
       }
     }
   }
 }
 
+void serialize_json(const JsonDocument *obj) {
+  if (state.prettify_output) {
+    serializeJsonPretty(*obj, Serial);
+  } else {
+    serializeJson(*obj, Serial);
+    Serial.println("");
+  }
+}
+
+void update_engine(int motor_pin, int pin1, int pin2, int new_speed) {
+  if (new_speed < 0) {
+    digitalWrite(pin1, LOW);
+    digitalWrite(pin2, HIGH);
+  } else {
+    digitalWrite(pin1, HIGH);
+    digitalWrite(pin2, LOW);
+  }
+  int abs_speed = abs(new_speed);
+  abs_speed = abs_speed > MAX_SPEED ? MAX_SPEED : abs_speed;
+  analogWrite(motor_pin, abs_speed); // Send PWM signal to motor A
+}
+  
 void keep_moving(){
   if (state.updateA) {
     state.updateA = false;
-    if (state.A < 0) {
-      digitalWrite(in1, LOW);
-      digitalWrite(in2, HIGH);
-    } else {
-      digitalWrite(in1, HIGH);
-      digitalWrite(in2, LOW);
-    }
-    analogWrite(enA, abs(state.A)); // Send PWM signal to motor A
+    update_engine(enA, in1, in2, state.A);
   }
   
   if (state.updateB) {
     state.updateB = false;
-    if (state.B < 0) {
-      digitalWrite(in3, LOW);
-      digitalWrite(in4, HIGH);
-    } else {
-      digitalWrite(in3, HIGH);
-      digitalWrite(in4, LOW);
-    }
-    analogWrite(enB, abs(state.B)); // Send PWM signal to motor A
+    update_engine(enB, in3, in4, state.B);
   }
 }
