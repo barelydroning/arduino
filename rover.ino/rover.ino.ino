@@ -22,8 +22,8 @@
 
 #include <ArduinoJson.h>
 
-#define enA 2
-#define enB 7
+#define enA 10
+#define enB 11
 
 #define in1 3
 #define in2 4
@@ -67,6 +67,9 @@ void setup() {
   pinMode(in2, OUTPUT);
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
+
+  analogWrite(enA, 50);
+  analogWrite(enB, 50);
 
   StaticJsonDocument<60> doc;
   doc["message"] = "Arduino ready";
@@ -139,14 +142,14 @@ void update_state() {
             update_info["command"] = state.B; 
           } 
 
-          strcpy(key, "prettify_output");
-          if (received.containsKey(key)){
-            state.prettify_output = (bool)received[key];
+          // strcpy(key, "prettify_output");
+          // if (received.containsKey(key)){
+          //   state.prettify_output = (bool)received[key];
                   
-            JsonObject update_info = data.createNestedObject();
-            update_info["device"] = "meta";
-            update_info["command"] = "Toggle prettify_output to " + (int)state.prettify_output;
-          }
+          //   JsonObject update_info = data.createNestedObject();
+          //   update_info["device"] = "meta";
+          //   update_info["command"] = "Toggle prettify_output to " + (int)state.prettify_output;
+          // }
         }
         
         state.message = "";
