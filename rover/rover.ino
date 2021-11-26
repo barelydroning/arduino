@@ -30,6 +30,9 @@
 #define in3 5
 #define in4 6
 
+#define ULTRASOUND_PING_PIN 8
+#define ULTRASOUND_ECHO_PIN 9
+
 #define default_prettify_output 0
 #define baud 115200
 
@@ -44,6 +47,7 @@ struct STATE {
   String message;
   int json_depth;
   bool prettify_output;
+  int centimeters;
 };
 
 STATE state = {
@@ -54,6 +58,7 @@ STATE state = {
   "", 
   0,
   default_prettify_output,
+  0,
 };
 
 
@@ -68,12 +73,12 @@ void setup() {
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
 
-  analogWrite(enA, 50);
-  analogWrite(enB, 50);
+  pinMode(ULTRASOUND_PING_PIN, OUTPUT);
+  pinMode(ULTRASOUND_ECHO_PIN, INPUT);
 
-  StaticJsonDocument<100> doc;
+
+  StaticJsonDocument<60> doc;
   doc["message"] = "Arduino ready";
-  doc["type"] = "information";
   serialize_json(&doc);
 }
 
@@ -143,14 +148,11 @@ void update_state() {
             update_info["command"] = state.B; 
           } 
 
-          // strcpy(key, "prettify_output");
-          // if (received.containsKey(key)){
-          //   state.prettify_output = (bool)received[key];
-                  
-          //   JsonObject update_info = data.createNestedObject();
-          //   update_info["device"] = "meta";
-          //   update_info["command"] = "Toggle prettify_output to " + (int)state.prettify_output;
-          // }
+          // Set distance in centimeters to return
+
+          long cm = get_centimeters_to_obstacle();
+          JsonObject distance_info = data.createNestedObject();
+          distance_info["centimeters"] = cm;
         }
         
         state.message = "";
@@ -194,3 +196,21 @@ void keep_moving(){
     update_engine(enB, in3, in4, state.B);
   }
 }
+
+// Ultrasound helpers
+
+long get_centimeters_to_obstacle() {
+  digitalWrite(ULTRASOUND_PING_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(ULTRASOUND_PING_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(ULTRASOUND_PING_PIN, LOW);
+
+  long duration = pulseIn(ULTRASOUND_ECHO_PIN, HIGH);
+  return microsecondsToCentimeters(duration);
+}
+
+long microsecondsToCentimeters(long microseconds) {
+  return microseconds / 29 / 2;
+}
+
