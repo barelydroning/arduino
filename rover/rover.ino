@@ -71,8 +71,9 @@ void setup() {
   analogWrite(enA, 50);
   analogWrite(enB, 50);
 
-  StaticJsonDocument<60> doc;
+  StaticJsonDocument<100> doc;
   doc["message"] = "Arduino ready";
+  doc["type"] = "information";
   serialize_json(&doc);
 }
 
