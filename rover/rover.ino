@@ -150,7 +150,7 @@ void update_state() {
 
           // Set distance in centimeters to return
 
-          long cm = get_centimeters_to_obstacle();
+          long cm = get_centimeters_to_obstacle(FRONT_ULTRASOUND_PING_PIN, FRONT_ULTRASOUND_ECHO_PIN);
           JsonObject distance_info = data.createNestedObject();
           distance_info["centimeters"] = cm;
         }
@@ -199,14 +199,14 @@ void keep_moving(){
 
 // Ultrasound helpers
 
-long get_centimeters_to_obstacle() {
-  digitalWrite(FRONT_ULTRASOUND_PING_PIN, LOW);
+long get_centimeters_to_obstacle(int pingPin, int echoPin) {
+  digitalWrite(pingPin, LOW);
   delayMicroseconds(2);
-  digitalWrite(FRONT_ULTRASOUND_PING_PIN, HIGH);
+  digitalWrite(pingPin, HIGH);
   delayMicroseconds(10);
-  digitalWrite(FRONT_ULTRASOUND_PING_PIN, LOW);
+  digitalWrite(pingPin, LOW);
 
-  long duration = pulseIn(FRONT_ULTRASOUND_ECHO_PIN, HIGH);
+  long duration = pulseIn(echoPin, HIGH);
   return microsecondsToCentimeters(duration);
 }
 
