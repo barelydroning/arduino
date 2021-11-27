@@ -33,6 +33,12 @@
 #define FRONT_ULTRASOUND_PING_PIN 8
 #define FRONT_ULTRASOUND_ECHO_PIN 9
 
+#define LEFT_ULTRASOUND_PING_PIN 12
+#define LEFT_ULTRASOUND_ECHO_PIN 3
+
+#define RIGHT_ULTRASOUND_PING_PIN 13
+#define RIGHT_ULTRASOUND_ECHO_PIN 6
+
 #define default_prettify_output 0
 #define baud 115200
 
@@ -76,6 +82,11 @@ void setup() {
   pinMode(FRONT_ULTRASOUND_PING_PIN, OUTPUT);
   pinMode(FRONT_ULTRASOUND_ECHO_PIN, INPUT);
 
+  pinMode(LEFT_ULTRASOUND_PING_PIN, OUTPUT);
+  pinMode(LEFT_ULTRASOUND_ECHO_PIN, INPUT);
+
+  pinMode(RIGHT_ULTRASOUND_PING_PIN, OUTPUT);
+  pinMode(RIGHT_ULTRASOUND_ECHO_PIN, INPUT);
 
   StaticJsonDocument<60> doc;
   doc["message"] = "Arduino ready";
@@ -149,10 +160,12 @@ void update_state() {
           } 
 
           // Set distance in centimeters to return
-
-          long cm = get_centimeters_to_obstacle(FRONT_ULTRASOUND_PING_PIN, FRONT_ULTRASOUND_ECHO_PIN);
           JsonObject distance_info = data.createNestedObject();
-          distance_info["centimeters"] = cm;
+
+          distance_info["distanceFront"] = get_centimeters_to_obstacle(FRONT_ULTRASOUND_PING_PIN, FRONT_ULTRASOUND_ECHO_PIN);
+          distance_info["distanceLeft"] = get_centimeters_to_obstacle(LEFT_ULTRASOUND_PING_PIN, LEFT_ULTRASOUND_ECHO_PIN);
+          distance_info["distanceRight"] = get_centimeters_to_obstacle(RIGHT_ULTRASOUND_PING_PIN, RIGHT_ULTRASOUND_ECHO_PIN);
+
         }
         
         state.message = "";
