@@ -30,8 +30,8 @@
 #define in3 5
 #define in4 6
 
-#define ULTRASOUND_PING_PIN 8
-#define ULTRASOUND_ECHO_PIN 9
+#define FRONT_ULTRASOUND_PING_PIN 8
+#define FRONT_ULTRASOUND_ECHO_PIN 9
 
 #define default_prettify_output 0
 #define baud 115200
@@ -73,8 +73,8 @@ void setup() {
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
 
-  pinMode(ULTRASOUND_PING_PIN, OUTPUT);
-  pinMode(ULTRASOUND_ECHO_PIN, INPUT);
+  pinMode(FRONT_ULTRASOUND_PING_PIN, OUTPUT);
+  pinMode(FRONT_ULTRASOUND_ECHO_PIN, INPUT);
 
 
   StaticJsonDocument<60> doc;
@@ -200,13 +200,13 @@ void keep_moving(){
 // Ultrasound helpers
 
 long get_centimeters_to_obstacle() {
-  digitalWrite(ULTRASOUND_PING_PIN, LOW);
+  digitalWrite(FRONT_ULTRASOUND_PING_PIN, LOW);
   delayMicroseconds(2);
-  digitalWrite(ULTRASOUND_PING_PIN, HIGH);
+  digitalWrite(FRONT_ULTRASOUND_PING_PIN, HIGH);
   delayMicroseconds(10);
-  digitalWrite(ULTRASOUND_PING_PIN, LOW);
+  digitalWrite(FRONT_ULTRASOUND_PING_PIN, LOW);
 
-  long duration = pulseIn(ULTRASOUND_ECHO_PIN, HIGH);
+  long duration = pulseIn(FRONT_ULTRASOUND_ECHO_PIN, HIGH);
   return microsecondsToCentimeters(duration);
 }
 
