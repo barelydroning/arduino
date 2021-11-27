@@ -25,10 +25,10 @@
 #define enA 10
 #define enB 11
 
-#define in1 3
+#define in1 2
 #define in2 4
 #define in3 5
-#define in4 6
+#define in4 7
 
 #define FRONT_ULTRASOUND_PING_PIN 8
 #define FRONT_ULTRASOUND_ECHO_PIN 9
